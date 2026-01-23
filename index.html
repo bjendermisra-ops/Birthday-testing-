@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ISKCON | Master Admin</title>
+    
+    <!-- External Libs -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --primary: #FF7B00;
+            --primary-grad: linear-gradient(135deg, #FF7B00 0%, #FF2E00 100%);
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --bg-page: #fff5eb;
+            --text-dark: #1f1f1f;
+        }
+
+        body {
+            background: var(--bg-page);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(255, 123, 0, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(233, 64, 87, 0.08) 0px, transparent 50%);
+            font-family: 'Urbanist', sans-serif;
+            min-height: 100vh;
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased; /* Quality boost on Mac/iPhone */
+        }
+
+        /* Responsive Container */
+        .app-container {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Glassmorphism Card (Dynamic Size) */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); /* Safari Support */
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        /* Header Scaling */
+        h1.app-title {
+            font-weight: 800;
+            /* Clamp Logic: Min 24px, Ideal 5vw, Max 40px */
+            font-size: clamp(1.5rem, 5vw, 2.5rem); 
+            background: var(--primary-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        /* --- 📱 RESPONSIVE INPUT FORM --- */
+        .input-wrapper {
+            background: white;
+            border-radius: 16px;
+            padding: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap; /* Allows stacking on mobile */
+            transition: 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            box-shadow: 0 8px 30px rgba(255, 123, 0, 0.15);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Select Box */
+        .select-styled {
+            flex: 0 0 140px; /* Fixed width on desktop */
+            border: none;
+            background: #fff8f0;
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-weight: 600;
+            color: #555;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Text Input */
+        .input-styled {
+            flex: 1; /* Takes remaining space */
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            padding: 12px 10px;
+            min-width: 200px;
+        }
+
+        /* Submit Button */
+        .btn-add-pro {
+            background: var(--primary-grad);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            white-space: nowrap; /* Text won't break */
+            transition: 0.2s;
+        }
+
+        .btn-add-pro:active { transform: scale(0.95); }
+
+        /* --- 📱 LIST RESPONSIVENESS --- */
+        .list-container {
+            max-height: 60vh; /* Responsive Height */
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .item-card {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            border-left: 5px solid #eee;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+
+        /* Icon Wrapper */
+        .icon-circle {
+            width: 45px;
+            height: 45px;
+            min-width: 45px; /* Prevent shrinking */
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+
+        .content-box { flex: 1; min-width: 0; /* Enables truncation */ }
+        
+        .main-text {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #333;
+            margin-bottom: 2px;
+            word-wrap: break-word; /* Fix for long text on mobile */
+            line-height: 1.3;
+        }
+
+        .sub-text {
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        /* Types Colors */
+        .type-birthday { border-color: #e84393; }
+        .type-birthday .icon-circle { background: #ffdcf0; color: #e84393; }
+
+        .type-donation { border-color: #00cec9; }
+        .type-donation .icon-circle { background: #dfffff; color: #009692; }
+
+        .type-notice { border-color: #fdcb6e; }
+        .type-notice .icon-circle { background: #fff4d9; color: #cf8a00; }
+
+        /* Tabs Responsive */
+        .filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto; /* Scroll on very small phones */
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            scrollbar-width: none;
+        }
+        .filter-chip {
+            white-space: nowrap;
+            padding: 8px 18px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 123, 0, 0.3);
+        }
+
+        /* 🔥 MOBILE MEDIA QUERY (Breakpoint < 600px) */
+        @media (max-width: 600px) {
+            .app-container { padding: 15px; }
+            .glass-card { padding: 20px; padding-top: 25px; }
+
+            /* Make Inputs Stack Vertically */
+            .input-wrapper {
+                flex-direction: column;
+                padding: 12px;
+                gap: 12px;
+            }
+            .select-styled { width: 100%; border-radius: 10px; flex: auto; }
+            .input-styled { padding: 10px; }
+            .btn-add-pro { 
+                width: 100%; 
+                padding: 14px; /* Larger touch area */
+                font-size: 1.1rem;
+            }
+
+            /* Adjust List Items */
+            .item-card { padding: 12px; }
+            .icon-circle { width: 40px; height: 40px; min-width: 40px; font-size: 1rem; margin-right: 12px; }
+            .main-text { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-4">
+            <h1 class="app-title animate__animated animate__fadeInDown">Slider Admin</h1>
+            <p class="text-muted small fw-bold text-uppercase ls-1">Direct Database Control</p>
+        </div>
+
+        <!-- INPUT CARD -->
+        <div class="glass-card animate__animated animate__zoomIn">
+            <h6 class="text-secondary fw-bold mb-3 ms-1"><i class="fas fa-plus-circle text-warning"></i> ADD NEW ENTRY</h6>
+            
+            <div class="input-wrapper">
+                <select id="typeSelect" class="select-styled">
+                    <option value="birthday">🎂 B-Day</option>
+                    <option value="donation">🙏 Donation</option>
+                    <option value="notice">📢 Notice</option>
+                </select>
+                
+                <input type="text" id="entryText" class="input-styled" placeholder="Enter name or message..." autocomplete="off">
+                
+                <button onclick="addItem()" id="btnAdd" class="btn-add-pro">
+                    Add Slide
+                </button>
+            </div>
+        </div>
+
+        <!-- LIST CARD -->
+        <div class="glass-card animate__animated animate__fadeInUp animate__delay-1s" style="padding-bottom: 10px;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="m-0 fw-bold text-secondary">ACTIVE ITEMS</h6>
+                <span class="badge bg-light text-dark border" id="countBadge">0</span>
+            </div>
+
+            <!-- Scrollable Filter -->
+            <div class="filters">
+                <div class="filter-chip active" onclick="filterItems('all', this)">All View</div>
+                <div class="filter-chip" onclick="filterItems('birthday', this)">Birthdays</div>
+                <div class="filter-chip" onclick="filterItems('donation', this)">Donations</div>
+                <div class="filter-chip" onclick="filterItems('notice', this)">Notices</div>
+            </div>
+
+            <!-- Dynamic List -->
+            <div id="itemList" class="list-container">
+                <div class="text-center py-4 text-muted small">Loading Database...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 🔥 FIREBASE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDaiyXkiQgyJWAC7QsOcneHl0KU0O4kwgI",
+          authDomain: "iskcon-slider.firebaseapp.com",
+          databaseURL: "https://iskcon-slider-default-rtdb.firebaseio.com",
+          projectId: "iskcon-slider",
+          storageBucket: "iskcon-slider.firebasestorage.app",
+          messagingSenderId: "887649015723",
+          appId: "1:887649015723:web:f64104897972e65ea564ee"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        let allData = [];
+        let activeFilter = 'all';
+
+        // --- ADD ITEM ---
+        window.addItem = () => {
+            const txt = document.getElementById('entryText').value.trim();
+            const type = document.getElementById('typeSelect').value;
+            const btn = document.getElementById('btnAdd');
+
+            if(!txt) {
+                Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Message field is empty!', timer: 2000, showConfirmButton: false });
+                return;
+            }
+
+            // UI Button feedback
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            btn.style.opacity = "0.7";
+
+            push(ref(db, 'slider_items'), {
+                type: type,
+                text: txt,
+                time: Date.now()
+            }).then(() => {
+                document.getElementById('entryText').value = "";
+                btn.innerHTML = "Add Slide";
+                btn.style.opacity = "1";
+                const Toast = Swal.mixin({ toast: true, position: 'top', showConfirmButton: false, timer: 3000 });
+                Toast.fire({ icon: 'success', title: 'Successfully Added!' });
+            });
+        }
+
+        // --- DELETE ITEM ---
+        window.deleteItem = (key) => {
+            Swal.fire({
+                title: 'Delete?',
+                text: "This cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#eee',
+                cancelButtonText: '<span style="color:#555">Cancel</span>',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) remove(ref(db, 'slider_items/' + key));
+            })
+        }
+
+        // --- FILTER FUNCTION ---
+        window.filterItems = (type, elem) => {
+            activeFilter = type;
+            document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
+            elem.classList.add('active');
+            renderUI();
+        }
+
+        // --- DB LISTENER & RENDER ---
+        onValue(ref(db, 'slider_items'), (snapshot) => {
+            const list = document.getElementById('itemList');
+            const data = snapshot.val();
+            list.innerHTML = "";
+            allData = [];
+
+            if(data) {
+                Object.entries(data).forEach(([key, val]) => allData.unshift({ id: key, ...val }));
+            }
+            
+            renderUI();
+        });
+
+        function renderUI() {
+            const list = document.getElementById('itemList');
+            list.innerHTML = "";
+            
+            const filtered = activeFilter === 'all' ? allData : allData.filter(d => d.type === activeFilter);
+            document.getElementById('countBadge').innerText = filtered.length;
+
+            if(filtered.length === 0) {
+                list.innerHTML = `<div class="text-center py-5 opacity-50"><i class="fas fa-wind fa-2x mb-2"></i><br>Nothing here yet.</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                // Determine styling classes
+                let cssClass = 'type-notice';
+                let icon = 'fa-bullhorn';
+                
+                if(item.type === 'birthday') { cssClass = 'type-birthday'; icon = 'fa-cake-candles'; }
+                else if(item.type === 'donation') { cssClass = 'type-donation'; icon = 'fa-hand-holding-dollar'; }
+
+                const dateStr = new Date(item.time).toLocaleDateString("en-US", { month:'short', day:'numeric' });
+
+                list.innerHTML += `
+                <div class="item-card ${cssClass}">
+                    <div class="icon-circle">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <div class="content-box">
+                        <div class="main-text">${item.text}</div>
+                        <div class="sub-text">
+                            <i class="far fa-clock me-1"></i>${dateStr} &bull; ${item.type.toUpperCase()}
+                        </div>
+                    </div>
+                    <button class="btn btn-sm text-danger bg-light rounded-circle" style="width:36px; height:36px;" onclick="deleteItem('${item.id}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>`;
+            });
+        }
+    </script>
+</body>
+</html>
