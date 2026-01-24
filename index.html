@@ -3,430 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ISKCON | Event Manager</title>
+    <title>Admin | Master Control</title>
     
-    <!-- External Libs -->
+    <!-- CSS Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        :root {
-            --primary: #FF7B00;
-            --primary-grad: linear-gradient(135deg, #FF7B00 0%, #FF2E00 100%);
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --bg-page: #fff8f5;
-            --text-dark: #2d3436;
-        }
-
-        body {
-            background: var(--bg-page);
-            font-family: 'Urbanist', sans-serif;
-            min-height: 100vh;
-            color: var(--text-dark);
-            padding-bottom: 50px;
-        }
-
-        .app-container {
+        :root { --primary: #FF7B00; --secondary: #FF2E00; --bg-page: #f0f2f5; }
+        body { background: var(--bg-page); font-family: 'Urbanist', sans-serif; padding-bottom: 80px; -webkit-font-smoothing: antialiased; }
+        
+        /* Responsive Container */
+        .app-container { 
             width: 100%;
-            max-width: 600px; /* Thoda narrow rakha taki phone pe app jaisa feel aye */
-            margin: 0 auto;
-            padding: 15px;
+            max-width: 700px; /* Thoda wide kiya tablet ke liye */
+            margin: 0 auto; 
+            padding: 15px; 
         }
-
-        /* Title Area */
+        
         h1.app-title {
-            font-weight: 800;
-            background: var(--primary-grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 2.2rem;
-            margin-bottom: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 800; text-align: center; margin-bottom: 20px; font-size: 1.8rem;
         }
 
-        /* --- ✨ FORM CARD --- */
-        .glass-card {
-            background: var(--glass-bg);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(255, 123, 0, 0.06);
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+        .card-box {
+            background: white; border-radius: 20px; padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
-        /* Input Grid System */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        /* Input Styling */
+        .label-c { font-size: 0.7rem; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .input-c { 
+            width: 100%; padding: 12px 15px; border: 2px solid #f1f1f1; border-radius: 12px; 
+            font-weight: 600; font-size: 0.95rem; outline: none; transition: 0.2s; background: #fafafa;
         }
+        .input-c:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(255,123,0,0.1); }
+        .input-c:disabled { background: #eee; cursor: not-allowed; }
+
+        /* Buttons */
+        .btn-main {
+            width: 100%; padding: 14px; background: var(--primary); color: white; border: none;
+            border-radius: 12px; font-weight: 700; font-size: 1rem; 
+            box-shadow: 0 8px 20px rgba(255,123,0,0.25); transition: 0.2s;
+        }
+        .btn-main:active { transform: scale(0.98); }
+        .btn-update { background: #16a085; box-shadow: 0 8px 20px rgba(22, 160, 133, 0.25); }
+        .btn-cancel { background: #636e72; color: white; border-radius: 12px; font-weight: 700; width: 100%; padding: 14px;}
+
+        /* Priority Grid */
+        .p-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
+        .p-opt {
+            padding: 12px 5px; border: 2px solid #f1f1f1; border-radius: 12px; text-align: center; 
+            font-weight: 700; font-size: 0.85rem; color: #666; cursor: pointer; background: white; transition: 0.2s;
+        }
+        .p-opt:hover { background: #fdfdfd; }
+        .p-opt.active { border-color: var(--primary); background: #fff8f0; color: var(--primary); box-shadow: 0 4px 10px rgba(255,123,0,0.1); }
+
+        /* Item List */
+        .item-row { 
+            background: white; padding: 15px; border-radius: 16px; margin-bottom: 12px; 
+            border-left: 6px solid #ddd; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02); gap: 10px;
+        }
+        .item-info { flex: 1; min-width: 0; } /* Prevents text overflow */
+        .item-name { font-weight: 700; color: #2d3436; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-meta { font-size: 0.8rem; color: #888; margin-top: 2px; }
         
-        .full-width { grid-column: span 2; }
+        .action-btns { display: flex; gap: 8px; }
+        .btn-icon { width: 36px; height: 36px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-edit { background: #e3f2fd; color: #0984e3; }
+        .btn-del { background: #ffebee; color: #d63031; }
+        .btn-icon:active { transform: scale(0.9); }
 
-        .form-label-custom {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #888;
-            margin-bottom: 4px;
-            margin-left: 5px;
-            display: block;
-        }
+        /* Colors for types */
+        .bd-bday { border-color: #ff6b81; } .bd-anni { border-color: #a55eea; }
+        .bd-donate { border-color: #2ecc71; } .bd-notice { border-color: #f1c40f; }
 
-        .input-box {
-            background: #fff;
-            border: 2px solid #f0f0f0;
-            border-radius: 12px;
-            padding: 12px 15px;
-            width: 100%;
-            font-family: 'Urbanist', sans-serif;
-            font-weight: 600;
-            color: #333;
-            outline: none;
-            transition: 0.3s;
-        }
-        
-        .input-box:focus {
-            border-color: var(--primary);
-            box-shadow: 0 5px 15px rgba(255, 123, 0, 0.1);
-        }
-
-        .btn-add-main {
-            background: var(--primary-grad);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-top: 10px;
-            box-shadow: 0 10px 25px rgba(255, 46, 0, 0.25);
-            transition: 0.2s;
-        }
-        .btn-add-main:active { transform: scale(0.97); }
-
-        /* --- 📋 LIST STYLES --- */
-        .item-card {
-            background: white;
-            padding: 18px;
-            border-radius: 18px;
-            margin-bottom: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
-            border-left: 6px solid #ccc;
-            position: relative;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-
-        /* Badge/Header Section */
-        .card-header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .type-badge {
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 8px;
-            text-transform: uppercase;
-        }
-
-        .event-date {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #555;
-            background: #f8f9fa;
-            padding: 4px 10px;
-            border-radius: 8px;
-        }
-
-        /* Text Styles */
-        .person-name {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: #2d3436;
-            line-height: 1.2;
-        }
-
-        .person-identity {
-            font-size: 0.95rem;
-            color: var(--primary); /* Highlight Role */
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .person-address {
-            font-size: 0.85rem;
-            color: #888;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-delete {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #fff5f5;
-            color: #ff4757;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-delete:active { transform: scale(0.9); background: #ffe0e3; }
-
-        /* --- COLORS & THEMES --- */
-        /* Anniversary (Purple) */
-        .border-anni { border-left-color: #a55eea; }
-        .bg-anni { background: #f3e5f5; color: #8e44ad; }
-        
-        /* Birthday (Pink) */
-        .border-bday { border-left-color: #ff6b81; }
-        .bg-bday { background: #fff0f1; color: #ff4757; }
-
-        /* Donation (Green) */
-        .border-donate { border-left-color: #2ecc71; }
-        .bg-donate { background: #e8f8f5; color: #27ae60; }
-
-        /* Notice (Orange) */
-        .border-notice { border-left-color: #f1c40f; }
-        .bg-notice { background: #fff9e6; color: #f39c12; }
-
+        /* Editing Mode Indicator */
+        .editing-mode { border: 2px dashed #16a085; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(22, 160, 133, 0.4);} 70% {box-shadow: 0 0 0 10px rgba(22, 160, 133, 0);} 100% {box-shadow: 0 0 0 0 rgba(22, 160, 133, 0);} }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        
-        <!-- Header -->
-        <div class="text-center mb-4 pt-2">
-            <h1 class="app-title">Master Control</h1>
-            <p class="text-muted fw-bold small text-uppercase ls-2">Database & Events Admin</p>
+        <h1 class="app-title"><i class="fas fa-sliders-h me-2"></i>Master Control</h1>
+
+        <!-- 1. PRIORITY CONTROL -->
+        <div class="card-box animate__animated animate__fadeInDown">
+            <h6 class="fw-bold small text-uppercase mb-3" style="letter-spacing:1px; color:#555;">
+                <i class="fas fa-layer-group text-warning me-2"></i>Display Priority
+            </h6>
+            <div class="p-grid">
+                <div class="p-opt" id="p-date" onclick="setPriority('date')">📅 Date</div>
+                <div class="p-opt" id="p-notice" onclick="setPriority('notice')">📢 Notice</div>
+                <div class="p-opt" id="p-birthday" onclick="setPriority('birthday')">🎂 B-Day</div>
+                <div class="p-opt" id="p-donation" onclick="setPriority('donation')">🙏 Donation</div>
+            </div>
         </div>
 
-        <!-- INPUT FORM -->
-        <div class="glass-card animate__animated animate__fadeInDown">
+        <!-- 2. ADD / EDIT ENTRY -->
+        <div id="formCard" class="card-box animate__animated animate__fadeInUp">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold small text-uppercase m-0" style="letter-spacing:1px; color:#555;" id="formTitle">
+                    <i class="fas fa-plus-circle text-warning me-2"></i>Add New Entry
+                </h6>
+                <span id="editBadge" class="badge bg-success" style="display:none;">EDITING MODE</span>
+            </div>
             
-            <div class="form-grid">
-                
-                <!-- 1. Event Type -->
-                <div>
-                    <label class="form-label-custom">Event Type</label>
-                    <select id="inpType" class="input-box">
-                        <option value="anniversary">💍 Anniversary</option>
+            <input type="hidden" id="editKey"> <!-- Hidden ID storage -->
+
+            <div class="row g-3">
+                <!-- Type & Date (Responsive: col-12 on mobile, col-6 on bigger) -->
+                <div class="col-12 col-md-6">
+                    <label class="label-c">Category</label>
+                    <select id="inpType" class="input-c">
                         <option value="birthday">🎂 Birthday</option>
-                        <option value="donation">🙏 Donation</option>
+                        <option value="anniversary">💍 Anniversary</option>
                         <option value="notice">📢 Notice</option>
+                        <option value="donation">🙏 Donation</option>
                     </select>
                 </div>
-
-                <!-- 2. Date -->
-                <div>
-                    <label class="form-label-custom">Date (Kab?)</label>
-                    <input type="date" id="inpDate" class="input-box">
+                <div class="col-12 col-md-6">
+                    <label class="label-c">Event Date</label>
+                    <input type="date" id="inpDate" class="input-c">
                 </div>
 
-                <!-- 3. Name (Full Width) -->
-                <div class="full-width">
-                    <label class="form-label-custom">Name / Title</label>
-                    <input type="text" id="inpName" class="input-box" placeholder="e.g. Santosh Prabhu" autocomplete="off">
+                <!-- Main Info -->
+                <div class="col-12">
+                    <label class="label-c">Name / Title</label>
+                    <input type="text" id="inpName" class="input-c" placeholder="E.g. Hare Krishna Das">
                 </div>
 
-                <!-- 4. Identity (Pahchan) -->
-                <div>
-                    <label class="form-label-custom">Identity (Role)</label>
-                    <input type="text" id="inpId" class="input-box" placeholder="e.g. Kitchen Head">
+                <div class="col-12 col-md-6">
+                    <label class="label-c">Role / Identity</label>
+                    <input type="text" id="inpId" class="input-c" placeholder="E.g. Life Member">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="label-c">City / Location</label>
+                    <input type="text" id="inpAddr" class="input-c" placeholder="E.g. Mumbai">
                 </div>
 
-                <!-- 5. Address (Location) -->
-                <div>
-                    <label class="form-label-custom">Address</label>
-                    <input type="text" id="inpAddr" class="input-box" placeholder="e.g. Sector-15">
+                <!-- Action / Link Section -->
+                <div class="col-12"><hr class="my-1 text-muted opacity-25"></div>
+                
+                <div class="col-12 col-md-5">
+                    <label class="label-c">On Click Action</label>
+                    <select id="inpLinkType" class="input-c" onchange="toggleLinkInput()">
+                        <option value="none">No Action</option>
+                        <option value="go">Open App Page (Go)</option>
+                        <option value="web">Open Website (URL)</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-7">
+                    <label class="label-c" id="lblLinkVal">Link / Page Code</label>
+                    <input type="text" id="inpLinkVal" class="input-c" placeholder="-- disabled --" disabled>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="full-width">
-                    <button onclick="addItem()" id="btnAdd" class="btn-add-main">
-                        <i class="fas fa-paper-plane me-2"></i> Update Display
-                    </button>
+                <!-- Buttons -->
+                <div class="col-12 mt-3 d-flex gap-2">
+                    <button id="btnSubmit" onclick="submitItem()" class="btn-main">PUBLISH SLIDE</button>
+                    <button id="btnCancel" onclick="resetForm()" class="btn-cancel" style="display:none; width: 40%;">CANCEL</button>
                 </div>
-
             </div>
         </div>
 
-        <!-- LIST CONTAINER -->
-        <div>
-            <h6 class="fw-bold text-muted ps-2 mb-3">RECENT ENTRIES</h6>
-            <div id="itemList">
-                <div class="text-center py-5 text-muted small">Fetching data from Firebase...</div>
-            </div>
+        <!-- 3. ACTIVE LIST -->
+        <h6 class="ps-3 fw-bold text-muted small mb-2">LIVE DATABASE</h6>
+        <div id="itemList" class="pb-4">
+            <div class="text-center py-5"><i class="fas fa-circle-notch fa-spin text-muted"></i></div>
         </div>
-
     </div>
 
-    <!-- 🔥 FIREBASE MODULE -->
+    <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, set, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-        // CONFIG (Replace if you have different project details)
-        const firebaseConfig = {
-          apiKey: "AIzaSyDaiyXkiQgyJWAC7QsOcneHl0KU0O4kwgI",
-          authDomain: "iskcon-slider.firebaseapp.com",
-          databaseURL: "https://iskcon-slider-default-rtdb.firebaseio.com",
-          projectId: "iskcon-slider",
-          storageBucket: "iskcon-slider.firebasestorage.app",
-          messagingSenderId: "887649015723",
-          appId: "1:887649015723:web:f64104897972e65ea564ee"
-        };
-
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp({
+            apiKey: "AIzaSyDaiyXkiQgyJWAC7QsOcneHl0KU0O4kwgI",
+            authDomain: "iskcon-slider.firebaseapp.com",
+            databaseURL: "https://iskcon-slider-default-rtdb.firebaseio.com",
+            projectId: "iskcon-slider",
+            storageBucket: "iskcon-slider.firebasestorage.app",
+            messagingSenderId: "887649015723",
+            appId: "1:887649015723:web:f64104897972e65ea564ee"
+        });
         const db = getDatabase(app);
-        
-        // Auto-set today's date in input
+
+        // Global State for raw data to help editing
+        let rawData = {}; 
+
+        // Set Default Date
         document.getElementById('inpDate').valueAsDate = new Date();
 
-        // --- ADD ITEM FUNCTION ---
-        window.addItem = () => {
-            // Get values
-            const type = document.getElementById('inpType').value;
-            const dateVal = document.getElementById('inpDate').value; // Returns YYYY-MM-DD
-            const name = document.getElementById('inpName').value.trim();
-            const identity = document.getElementById('inpId').value.trim(); // "Kitchen Wala"
-            const address = document.getElementById('inpAddr').value.trim(); // "Sec 15"
-
-            // Simple Validation
-            if(!name || !dateVal) {
-                Swal.fire({ 
-                    icon: 'error', 
-                    title: 'Missing Info', 
-                    text: 'Please enter at least Name and Date!',
-                    confirmButtonColor: '#FF7B00'
-                });
-                return;
+        // --- 1. UI LOGIC ---
+        
+        window.toggleLinkInput = () => {
+            const type = document.getElementById('inpLinkType').value;
+            const valInput = document.getElementById('inpLinkVal');
+            
+            if(type === 'none') {
+                valInput.disabled = true;
+                valInput.placeholder = "-- disabled --";
+                valInput.value = "";
+            } else if (type === 'go') {
+                valInput.disabled = false;
+                valInput.placeholder = "e.g. gallery (Page Code)";
+            } else {
+                valInput.disabled = false;
+                valInput.placeholder = "e.g. https://google.com";
             }
+        }
 
-            const btn = document.getElementById('btnAdd');
-            btn.innerHTML = 'Saving...';
+        window.resetForm = () => {
+            document.getElementById('editKey').value = "";
+            document.getElementById('inpName').value = "";
+            document.getElementById('inpId').value = "";
+            document.getElementById('inpAddr').value = "";
+            document.getElementById('inpLinkVal').value = "";
+            document.getElementById('inpType').value = "birthday";
+            document.getElementById('inpLinkType').value = "none";
+            document.getElementById('inpDate').valueAsDate = new Date();
+            
+            toggleLinkInput();
 
-            push(ref(db, 'slider_items'), {
-                type: type,
-                eventDate: dateVal,
-                name: name,
-                identity: identity,
-                address: address,
-                timestamp: Date.now() // Internal sorting
-            }).then(() => {
-                // Reset Fields (Keep Date same as workflow likely implies similar dates)
-                document.getElementById('inpName').value = "";
-                document.getElementById('inpId').value = "";
-                document.getElementById('inpAddr').value = "";
-                
-                btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Update Display';
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added!',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000
+            // UI Reset
+            document.getElementById('btnSubmit').innerHTML = "PUBLISH SLIDE";
+            document.getElementById('btnSubmit').classList.remove('btn-update');
+            document.getElementById('btnCancel').style.display = "none";
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle text-warning me-2"></i>Add New Entry';
+            document.getElementById('formCard').classList.remove('editing-mode');
+            document.getElementById('editBadge').style.display = "none";
+        }
+
+        // --- 2. FIREBASE ACTIONS ---
+
+        // Set Priority
+        window.setPriority = (type) => {
+            set(ref(db, 'slider_settings/priority'), type);
+        }
+        onValue(ref(db, 'slider_settings/priority'), (s) => {
+            const val = s.val() || 'date';
+            document.querySelectorAll('.p-opt').forEach(e => e.classList.remove('active'));
+            if(document.getElementById('p-'+val)) document.getElementById('p-'+val).classList.add('active');
+        });
+
+        // Submit (Create or Update)
+        window.submitItem = () => {
+            const editKey = document.getElementById('editKey').value;
+            
+            const d = {
+                type: document.getElementById('inpType').value,
+                eventDate: document.getElementById('inpDate').value,
+                name: document.getElementById('inpName').value.trim(),
+                identity: document.getElementById('inpId').value.trim(),
+                address: document.getElementById('inpAddr').value.trim(),
+                linkAction: document.getElementById('inpLinkType').value,
+                linkValue: document.getElementById('inpLinkVal').value.trim(),
+                timestamp: Date.now()
+            };
+
+            if(!d.name) { Swal.fire('Error','Title/Name is Required','error'); return; }
+
+            if(editKey) {
+                // UPDATE EXISTING
+                update(ref(db, 'slider_items/' + editKey), d).then(() => {
+                    Swal.fire({icon:'success', title:'Updated!', toast:true, position:'top', showConfirmButton:false, timer:1500});
+                    resetForm();
                 });
+            } else {
+                // CREATE NEW
+                push(ref(db, 'slider_items'), d).then(() => {
+                    Swal.fire({icon:'success', title:'Published!', toast:true, position:'top', showConfirmButton:false, timer:1500});
+                    resetForm(); // Clear inputs but keep basic settings
+                });
+            }
+        }
+
+        // Delete Item
+        window.deleteItem = (id) => {
+            Swal.fire({
+                title: 'Delete Entry?',
+                text: "This cannot be undone",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d63031',
+                confirmButtonText: 'Yes, Delete'
+            }).then(r => {
+                if(r.isConfirmed) {
+                    remove(ref(db, 'slider_items/'+id));
+                    // If we were editing this item, reset form
+                    if(document.getElementById('editKey').value === id) resetForm();
+                }
             });
         }
 
-        // --- DELETE ITEM ---
-        window.deleteItem = (key) => {
-            Swal.fire({
-                title: 'Delete this entry?',
-                text: "Confirm remove from slider screen.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ff4757',
-                confirmButtonText: 'Delete'
-            }).then((result) => {
-                if (result.isConfirmed) remove(ref(db, 'slider_items/' + key));
-            })
+        // Edit Trigger
+        window.triggerEdit = (key) => {
+            const item = rawData[key];
+            if(!item) return;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Populate Form
+            document.getElementById('editKey').value = key;
+            document.getElementById('inpType').value = item.type;
+            document.getElementById('inpDate').value = item.eventDate;
+            document.getElementById('inpName').value = item.name;
+            document.getElementById('inpId').value = item.identity || "";
+            document.getElementById('inpAddr').value = item.address || "";
+            document.getElementById('inpLinkType').value = item.linkAction || "none";
+            
+            toggleLinkInput(); // Enable field if needed
+            document.getElementById('inpLinkVal').value = item.linkValue || "";
+
+            // UI Changes
+            document.getElementById('btnSubmit').innerHTML = "UPDATE SLIDE";
+            document.getElementById('btnSubmit').classList.add('btn-update');
+            document.getElementById('btnCancel').style.display = "block";
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit text-success me-2"></i>Editing Entry';
+            document.getElementById('formCard').classList.add('editing-mode');
+            document.getElementById('editBadge').style.display = "block";
         }
 
-        // --- RENDER LIST ---
-        onValue(ref(db, 'slider_items'), (snapshot) => {
+        // --- 3. RENDER LIST ---
+        onValue(ref(db, 'slider_items'), (snap) => {
             const list = document.getElementById('itemList');
-            const data = snapshot.val();
-            list.innerHTML = "";
-            let entries = [];
-
-            if(data) {
-                Object.entries(data).forEach(([key, val]) => entries.unshift({ id: key, ...val }));
-            }
+            rawData = snap.val() || {}; // Store for edit access
             
-            if(entries.length === 0) {
-                list.innerHTML = `<div class="text-center py-4 text-muted"><i class="fas fa-box-open fa-3x opacity-25"></i><p class="mt-2">No active slides.</p></div>`;
-                return;
+            list.innerHTML = "";
+            
+            if(!rawData || Object.keys(rawData).length === 0) { 
+                list.innerHTML = `
+                    <div class="text-center p-4">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3 opacity-25"></i>
+                        <p class="text-muted small">No data found. Add some slides!</p>
+                    </div>`; 
+                return; 
             }
 
-            entries.forEach(item => {
-                // Styling Logic based on Type
-                let colorClass = "bg-notice";
-                let borderClass = "border-notice";
-                let typeLabel = "📢 Notice";
+            Object.entries(rawData).reverse().forEach(([k,v]) => {
+                let border = 'bd-notice';
+                if(v.type === 'birthday') border='bd-bday';
+                if(v.type === 'donation') border='bd-donate';
+                if(v.type === 'anniversary') border='bd-anni';
 
-                if(item.type === 'anniversary') { 
-                    colorClass = "bg-anni"; borderClass = "border-anni"; typeLabel = "💍 Anniversary";
-                }
-                else if(item.type === 'birthday') { 
-                    colorClass = "bg-bday"; borderClass = "border-bday"; typeLabel = "🎂 Birthday";
-                }
-                else if(item.type === 'donation') { 
-                    colorClass = "bg-donate"; borderClass = "border-donate"; typeLabel = "🙏 Donation";
-                }
+                let linkBadge = v.linkAction && v.linkAction !== 'none' 
+                    ? `<i class="fas fa-link text-primary ms-1 small" title="Has Link"></i>` 
+                    : '';
 
-                // Format Date nicely (e.g., "2024-12-25" -> "25 Dec")
-                const d = new Date(item.eventDate);
-                const prettyDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-                // Check empty fields
-                const roleDisplay = item.identity ? `(${item.identity})` : ""; 
-                const addressDisplay = item.address ? `<div class="person-address"><i class="fas fa-map-marker-alt text-danger"></i> ${item.address}</div>` : "";
-
-                // Card HTML
-                const cardHTML = `
-                <div class="item-card ${borderClass}">
-                    
-                    <!-- Delete Button -->
-                    <button class="btn-delete" onclick="deleteItem('${item.id}')"><i class="fas fa-trash-alt"></i></button>
-
-                    <!-- Top Row: Badge & Date -->
-                    <div class="card-header-flex">
-                        <span class="type-badge ${colorClass}">${typeLabel}</span>
-                        <span class="event-date"><i class="far fa-calendar-alt me-1"></i>${prettyDate}</span>
+                list.innerHTML += `
+                <div class="item-row ${border} animate__animated animate__fadeIn">
+                    <div class="item-info">
+                        <div class="item-name">${v.name} ${linkBadge}</div>
+                        <div class="item-meta">
+                            <i class="far fa-calendar-alt me-1"></i>${v.eventDate} 
+                            <span class="mx-1">•</span> 
+                            <span class="text-uppercase fw-bold" style="font-size:0.7rem">${v.type}</span>
+                        </div>
                     </div>
-
-                    <!-- Middle: Content -->
-                    <div class="mt-2">
-                        <div class="person-name">${item.name}</div>
-                        
-                        <!-- Role (conditionally shown) -->
-                        ${item.identity ? `<div class="person-identity">${roleDisplay}</div>` : ''}
-
-                        <!-- Address (conditionally shown) -->
-                        ${addressDisplay}
+                    <div class="action-btns">
+                        <button class="btn-icon btn-edit" onclick="triggerEdit('${k}')"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="btn-icon btn-del" onclick="deleteItem('${k}')"><i class="fas fa-trash-alt"></i></button>
                     </div>
-
                 </div>`;
-
-                list.innerHTML += cardHTML;
             });
         });
     </script>
